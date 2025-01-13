@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xAPI Statements Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #output {
+            white-space: pre-wrap;
+            background-color: #f4f4f4;
+            padding: 20px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>SCORM Cloud xAPI Statements Viewer</h1>
+<label for="actorEmail">Actor Email:</label>
+<input type="email" id="actorEmail" placeholder="Enter actor email">
+<label for="verbId">Verb ID:</label>
+<input type="text" id="verbId" placeholder="Enter verb ID">
+<button id="fetchActorStatementsBtn">Fetch xAPI Statements</button>
+<br><br>
+<label for="statementId">Statement ID:</label>
+<input type="text" id="statementId" placeholder="Enter statement ID">
+<button id="fetchStatementByIdBtn">Fetch xAPI Statement by ID</button>
+
+<div id="output">
+    <p>Click the buttons above to fetch xAPI statements.</p>
+</div>
+
+<script>
+    document.getElementById('fetchActorStatementsBtn').addEventListener('click', function () {
+        const actorEmail = document.getElementById('actorEmail').value;
+        const verbId = document.getElementById('verbId').value;
+        if (actorEmail && verbId) {
+            fetchStatementsByActorAndVerb(actorEmail, verbId);
+        } else {
+            alert("Please enter both a valid actor email and verb ID.");
+        }
+    });
+
+    document.getElementById('fetchStatementByIdBtn').addEventListener('click', function () {
+        const statementId = document.getElementById('statementId').value;
+        if (statementId) {
+            fetchStatementById(statementId);
+        } else {
+            alert("Please enter a valid statement ID.");
+        }
+    });
+
+    async function fetchStatementsByActorAndVerb(email, verbId) {
+        const actor = JSON.stringify({
+            "objectType": "Agent",
+            "mbox": `mailto:${email}`
+        });
+        const url = `https://cloud.scorm.com/lrs/LZBITRYL97/statements?agent=${encodeURIComponent(actor)}&verb=${encodeURIComponent(verbId)}`;
+        await fetchData(url);
+    }
+
+    async function fetchStatementById(statementId) {
+        const url = `https://cloud.scorm.com/lrs/LZBITRYL97/statements?statementId=${statementId}`;
+        await fetchData(url);
+    }
+
+    async function fetchData(url) {
+        const username = 'LZBITRYL97';
+        const password = 'DsXOqvll0eDI4zEVbNxyPLDEo6f2H4E6cRYgcGEV';
+
+        const headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa(username + ':' + password));
+        headers.set('Content-Type', 'application/json');
+        headers.set('X-Experience-API-Version', '1.0.0');
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: headers
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            const data = await response.json();
+
+            // Extract the verb display value and display it in the output
+            const statements = data.statements || [];
+            const outputText = statements.map(statement => {
+                if (statement.verb && statement.verb.display) {
+                    return `Verb Display: ${statement.verb.display["en-US"] || "N/A"}`;
+                }
+                return "No verb display found.";
+            }).join("\n");
+
+            document.getElementById('output').textContent = outputText || 'No matching statements found.';
+        } catch (error) {
+            document.getElementById('output').textContent = 'Error fetching xAPI statements: ' + error.message;
+        }
+    }
+</script>
+
+</body>
+</html>
