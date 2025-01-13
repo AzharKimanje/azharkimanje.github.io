@@ -61,7 +61,7 @@
             "objectType": "Agent",
             "mbox": `mailto:${email}`
         });
-        const url = `https://cloud.scorm.com/lrs/LZBITRYL97/statements?agent=${encodeURIComponent(actor)}&verb=${encodeURIComponent(verbId)}`;
+        const url = `https://cloud.scorm.com/lrs/LZBITRYL97/statements?agent=${encodeURIComponent(actor)}&verb=${encodeURIComponent(verbId)}&limit=1&descending=true`;
         await fetchData(url);
     }
 
@@ -89,21 +89,28 @@
             }
             const data = await response.json();
 
-            // Extract the verb display value and display it in the output
-            const statements = data.statements || [];
-            const outputText = statements.map(statement => {
-                if (statement.verb && statement.verb.display) {
-                    return `Verb Display: ${statement.verb.display["en-US"] || "N/A"}`;
-                }
-                return "No verb display found.";
-            }).join("\n");
+            // Extract the latest statement
+            const latestStatement = data.statements && data.statements[0];
+            if (latestStatement) {
+                // Extract verb display
+                const verbDisplay = latestStatement.verb?.display?.["en-US"] || "N/A";
 
-            document.getElementById('output').textContent = outputText || 'No matching statements found.';
+                // Extract final score from the statement's object definition description
+                const description = latestStatement.object?.definition?.description?.["en-US"];
+                const scoreMatch = description && description.match(/Final Score: (\d+)/);
+                const finalScore = scoreMatch ? scoreMatch[1] : "N/A";
+
+                // Display the latest verb and final score
+                document.getElementById('output').textContent = `Latest Verb: ${verbDisplay}\nFinal Score: ${finalScore}`;
+            } else {
+                document.getElementById('output').textContent = 'No matching statements found.';
+            }
         } catch (error) {
             document.getElementById('output').textContent = 'Error fetching xAPI statements: ' + error.message;
         }
     }
 </script>
+
 
 </body>
 </html>
