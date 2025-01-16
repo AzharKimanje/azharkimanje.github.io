@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xAPI Statements Viewer</title>
+    <title>MilExts Score Viewer</title>
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,60 +18,30 @@
             overflow-x: auto;
         }
     </style>
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>SCORM Cloud xAPI Statements Viewer</h1>
-<label for="actorEmail">Actor Email:</label>
-<input type="email" id="actorEmail" placeholder="Enter actor email">
-<label for="verbId">Verb ID:</label>
-<input type="text" id="verbId" placeholder="Enter verb ID">
-<button id="fetchActorStatementsBtn">Fetch xAPI Statements</button>
-<br><br>
-<label for="statementId">Statement ID:</label>
-<input type="text" id="statementId" placeholder="Enter statement ID">
-<button id="fetchStatementByIdBtn">Fetch xAPI Statement by ID</button>
+<h1>MilExts Score Viewer</h1>
+<label for="militaryId">Military ID:</label>
+<input type="text" id="militaryId" placeholder="Enter your Military ID">
+<button id="fetchScoreBtn">Fetch MilExts Score</button>
 
 <div id="output">
-    <p>Click the buttons above to fetch xAPI statements.</p>
+    <p>Enter your Military ID and click the button to see your MilExts score.</p>
 </div>
 
 <script>
-    document.getElementById('fetchActorStatementsBtn').addEventListener('click', function () {
-        const actorEmail = document.getElementById('actorEmail').value;
-        const verbId = document.getElementById('verbId').value;
-        if (actorEmail && verbId) {
-            fetchStatementsByActorAndVerb(actorEmail, verbId);
+    document.getElementById('fetchScoreBtn').addEventListener('click', function () {
+        const militaryId = document.getElementById('militaryId').value;
+        if (militaryId) {
+            fetchScoreByMilitaryId(militaryId);
         } else {
-            alert("Please enter both a valid actor email and verb ID.");
+            alert("Please enter a valid Military ID.");
         }
     });
 
-    document.getElementById('fetchStatementByIdBtn').addEventListener('click', function () {
-        const statementId = document.getElementById('statementId').value;
-        if (statementId) {
-            fetchStatementById(statementId);
-        } else {
-            alert("Please enter a valid statement ID.");
-        }
-    });
-
-    async function fetchStatementsByActorAndVerb(email, verbId) {
-        const actor = JSON.stringify({
-            "objectType": "Agent",
-            "mbox": `mailto:${email}`
-        });
-        const url = `https://cloud.scorm.com/lrs/LZBITRYL97/statements?agent=${encodeURIComponent(actor)}&verb=${encodeURIComponent(verbId)}&limit=1&descending=true`;
-        await fetchData(url);
-    }
-
-    async function fetchStatementById(statementId) {
-        const url = `https://cloud.scorm.com/lrs/LZBITRYL97/statements?statementId=${statementId}`;
-        await fetchData(url);
-    }
-
-    async function fetchData(url) {
+    async function fetchScoreByMilitaryId(militaryId) {
+        const url = `https://cloud.scorm.com/lrs/LZBITRYL97/statements`;
         const username = 'LZBITRYL97';
         const password = 'DsXOqvll0eDI4zEVbNxyPLDEo6f2H4E6cRYgcGEV';
 
@@ -89,28 +60,23 @@
             }
             const data = await response.json();
 
-            // Extract the latest statement
-            const latestStatement = data.statements && data.statements[0];
-            if (latestStatement) {
-                // Extract verb display
-                const verbDisplay = latestStatement.verb?.display?.["en-US"] || "N/A";
+            // Filter statements by military ID and extract score
+            const statements = data.statements || [];
+            const userStatement = statements.find(statement => {
+                return statement.object?.definition?.extensions?.["http://example.com/properties/userID"] === militaryId;
+            });
 
-                // Extract final score from the statement's object definition description
-                const description = latestStatement.object?.definition?.description?.["en-US"];
-                const scoreMatch = description && description.match(/Final Score: (\d+)/);
-                const finalScore = scoreMatch ? scoreMatch[1] : "N/A";
-
-                // Display the latest verb and final score
-                document.getElementById('output').textContent = `Latest Status: ${verbDisplay}\nFinal Score: ${finalScore}`;
+            if (userStatement) {
+                const description = userStatement.object?.definition?.description?.["en-US"] || "No description available.";
+                document.getElementById('output').textContent = `MilExts Score for Military ID: ${militaryId}\n${description}`;
             } else {
-                document.getElementById('output').textContent = 'No matching statements found.';
+                document.getElementById('output').textContent = `No MilExts score found for Military ID: ${militaryId}`;
             }
         } catch (error) {
-            document.getElementById('output').textContent = 'Error fetching xAPI statements: ' + error.message;
+            document.getElementById('output').textContent = 'Error fetching MilExts score: ' + error.message;
         }
     }
 </script>
-
 
 </body>
 </html>
