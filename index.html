@@ -36,7 +36,7 @@
         if (militaryId) {
             fetchScoreByMilitaryId(militaryId);
         } else {
-            alert("Please enter a valid Military ID.");
+            alert("Please enter a valid user ID.");
         }
     });
 
@@ -60,7 +60,7 @@
             }
             const data = await response.json();
 
-            // Filter statements by military ID and extract score
+            // Filter statements by user ID and extract score
             const statements = data.statements || [];
             const userStatement = statements.find(statement => {
                 return statement.object?.definition?.extensions?.["http://example.com/properties/userID"] === militaryId;
@@ -68,7 +68,7 @@
 
             if (userStatement) {
                 const description = userStatement.object?.definition?.description?.["en-US"] || "No description available.";
-                document.getElementById('output').textContent = `MilExts Score for Military ID: ${militaryId}\n${description}`;
+                document.getElementById('output').textContent = `MilExts Score for userID: ${militaryId}\n${description}`;
             } else {
                 document.getElementById('output').textContent = `No MilExts score found for user ID: ${militaryId}`;
             }
