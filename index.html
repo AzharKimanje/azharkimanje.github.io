@@ -23,7 +23,7 @@
 
 <h1>MilExts Score Viewer</h1>
 <label for="militaryId">userID:</label>
-<input type="text" id="militaryId" placeholder="Enter your Military ID">
+<input type="text" id="militaryId" placeholder="Enter your userID from Trauma Simulator">
 <button id="fetchScoreBtn">Fetch MilExts Score</button>
 
 <div id="output">
@@ -70,7 +70,7 @@
                 const description = userStatement.object?.definition?.description?.["en-US"] || "No description available.";
                 document.getElementById('output').textContent = `MilExts Score for Military ID: ${militaryId}\n${description}`;
             } else {
-                document.getElementById('output').textContent = `No MilExts score found for Military ID: ${militaryId}`;
+                document.getElementById('output').textContent = `No MilExts score found for user ID: ${militaryId}`;
             }
         } catch (error) {
             document.getElementById('output').textContent = 'Error fetching MilExts score: ' + error.message;
