@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MilExts Score Viewer</title>
+    <title>MilExTS Score Viewer</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body {
@@ -21,13 +21,13 @@
 </head>
 <body>
 
-<h1>MilExts Score Viewer</h1>
+<h1>MilExTS Score Viewer</h1>
 <label for="militaryId">userID:</label>
-<input type="text" id="militaryId" placeholder="Enter your userID from Trauma Simulator">
-<button id="fetchScoreBtn">Fetch MilExts Score</button>
+<input type="text" id="militaryId" placeholder="Enter your userID from the Trauma Simulator">
+<button id="fetchScoreBtn">Fetch MilExTS Score</button>
 
 <div id="output">
-    <p>Enter your userID and click the button to see your MilExts score.</p>
+    <p>Enter your userID and click the button to see your MilExTS score.</p>
 </div>
 
 <script>
@@ -70,10 +70,10 @@
                 const description = userStatement.object?.definition?.description?.["en-US"] || "No description available.";
                 document.getElementById('output').textContent = `MilExts Score for userID: ${militaryId}\n${description}`;
             } else {
-                document.getElementById('output').textContent = `No MilExts score found for user ID: ${militaryId}`;
+                document.getElementById('output').textContent = `No MilExTS score found for user ID: ${militaryId}`;
             }
         } catch (error) {
-            document.getElementById('output').textContent = 'Error fetching MilExts score: ' + error.message;
+            document.getElementById('output').textContent = 'Error fetching MilExTS score: ' + error.message;
         }
     }
 </script>
